@@ -35,3 +35,11 @@ corners = [row, col]
 print(corners)
 ccode = img_arr[row,col]
 print(ccode)
+
+
+Reading in files
+'''
+globalstructvuln = pd.read_csv("expo_data/struct_vulnerability.csv")
+globalnonstructvuln=pd.read_csv("expo_data/nonstruct_vulnerability.csv")
+globalcontentsvuln=pd.read_csv("expo_data/contents_vulnerability.csv")
+globalstructfrag=pd.read_csv("expo_data/struct_fragility.csv")
