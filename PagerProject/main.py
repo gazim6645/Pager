@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 import pandas as pd
 import Opening_files
+import getshakemapvalue
 import os
 
 '''
@@ -13,7 +14,6 @@ Task 1: Getting the xml file to grid
 '''
 grid = XmlToGrid.ShakeMapGrid()
 grid.load("us20005j32.xml")
-#print(len(grid.grid))
 #print(grid.grid[0]["LON"])
 
 '''
@@ -118,16 +118,8 @@ for country in ccode:
         break
     
     # read in exposure files
-    ExposureRes=pd.read_csv("expo_data/" + ccode_files[1])
+    ExposureRes=pd.read_csv("expo_data/" + ccode_files[0])
+    ExposureCom=pd.read_csv("expo_data/" + ccode_files[1])
     ExposureCom=pd.read_csv("expo_data/" + ccode_files[2])
-    ExposureCom=pd.read_csv("expo_data/" + ccode_files[3])
 
-
-
-
-
-
-
-
-    #print(ccode_files, country)
-
+    getshakemapvalue.getshakemapvalue(grid, ExposureRes)
