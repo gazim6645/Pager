@@ -15,11 +15,6 @@ grid = XmlToGrid.ShakeMapGrid()
 grid.load("us20005j32.xml")
 #print(len(grid.grid))
 #print(grid.grid[0]["LON"])
-print(grid.grid)
-
-
-
-
 
 '''
 Task 2: Getting tif file read to get country codes
@@ -34,12 +29,10 @@ img_arr = np.array(img)
 Task 3: Getting the country code
 '''
 
-#print(grid.lon)#how to get epicenter
-#print(grid.lat)#how to get epicenter
-
-
-#print(grid.lat_max)#coorners
-#print(grid.lat_min)#
+#print(grid.lon) # how to get epicenter
+#print(grid.lat) # how to get epicenter
+#print(grid.lat_max) # corners
+#print(grid.lat_min)
 
 range_of_lon=np.arange(-180.0000,179.999986,0.0083334)
 range_of_lat=np.arange(83.6333,-90.0000,-0.0083334)
@@ -74,24 +67,22 @@ ccode = list(set(ccode))
 #print("unique", ccode)
 
 '''
-Reading in files
-'''
+Task 4: Reading in files
 '''
 
-'''
 globalstructvuln = pd.read_csv("expo_data/struct_vulnerability.csv")
 globalnonstructvuln=pd.read_csv("expo_data/nonstruct_vulnerability.csv")
 globalcontentsvuln=pd.read_csv("expo_data/contents_vulnerability.csv")
 globalstructfrag=pd.read_csv("expo_data/struct_fragility.csv")
-ccode = [218]
+
+ccode = [218] # country code for Ecuador, the only country of ccode we have the files for
 for country in ccode:
     if(country == 0):
         continue
-    ccode_files, country_name = Opening_files.read_files(country)
-
-    print(country_name)
-
-    expo_files_name= os.listdir('expo_data')
+    ccode_files, country_name = Opening_files.read_files(country) # get list of filenames and country name
+    
+    expo_files_name= os.listdir('expo_data') # get list of files in expo_data folder
+    
     # structural vulnerability
     if ccode_files[3] in expo_files_name:
         contrystructvuln= pd.read_csv("expo_data/" + ccode_files[3])
@@ -125,7 +116,8 @@ for country in ccode:
         taxonomymapping = 0
         print('taxonomy mapping file is missing for this country')
         break
-
+    
+    # read in exposure files
     ExposureRes=pd.read_csv("expo_data/" + ccode_files[1])
     ExposureCom=pd.read_csv("expo_data/" + ccode_files[2])
     ExposureCom=pd.read_csv("expo_data/" + ccode_files[3])
