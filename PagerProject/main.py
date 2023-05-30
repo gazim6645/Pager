@@ -134,4 +134,3 @@ for country in ccode:
     struct_Res_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureRes, globalstructfrag, taxonomymapping,countrystructfrag)
 
 
-
