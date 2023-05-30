@@ -1,7 +1,27 @@
 import numpy as np
-from sklearn.discriminant_analysis import StandardScaler
-from sklearn.neighbors import NearestNeighbors
-import sklearn.preprocessing
+def pt_idx(shake_coords, expo_coords):
+  """Gets the index of the nearest neighbor in shake_coords for each point in expo_coords.
+
+  Args:
+    shake_coords: An MX-by-2 matrix, where the first column
+      contains the longitudes and the second column contains the latitudes
+      of the shakeoutput points.
+    expo_coords: An MY-by-2 matrix, where the first column
+      contains the longitudes and the second column contains the latitudes
+      of the exposure_res points.
+
+  Returns:
+    pt_idx: A column vector with MY rows. Each row in pt_idx contains the index of
+      the nearest neighbor in shake_coords for the corresponding row in expo_coords.
+  """
+
+  # Create the KDTree object.
+  kdtree = cKDTree(shake_coords)
+
+  # Find the nearest neighbor in shake_coords for each point in expo_coords.
+  pt_idx = kdtree.query(expo_coords, k=1)[1]
+
+  return pt_idx
 
 def getshakemapvalue(shakeoutput, Exposure):
     expo_lat=np.array(Exposure["LATITUDE"])
@@ -33,14 +53,9 @@ def getshakemapvalue(shakeoutput, Exposure):
     expo_coords = [expo_lon[idx], expo_lat[idx]]
 
 
-    '''scaler= StandardScaler()
-    shake_coords_standardized= scaler.fit_transform(shake_coords)
-    expo_coords_standardized= scaler.fit_transform(expo_coords)
+    shake_coords=np.array([(a,b) for a,b in zip(*shake_coords)])
+    expo_coords=np.array([(a,b) for a,b in zip(*expo_coords)])
 
 
-    knn = NearestNeighbors(n_neighbors=2)
-    knn.fit(shake_coords_standardized)
-    dis, indices = knn.kneighbors(expo_coords_standardized)
-    print(indices)
-'''
+    idx = pt_idx(np.array(shake_coords), np.array(expo_coords))
     
