@@ -8,6 +8,7 @@ import pandas as pd
 import Opening_files
 import getshakemapvalue
 import os
+import calcfunstructfrag
 
 '''
 Task 1: Getting the xml file to grid
@@ -118,8 +119,19 @@ for country in ccode:
         break
     
     # read in exposure files
-    ExposureRes=pd.read_csv("expo_data/" + ccode_files[0])
+    ExposureRes=pd.read_csv("expo_data/" + ccode_files[0]) #Only get the columns that are needed
     ExposureCom=pd.read_csv("expo_data/" + ccode_files[1])
-    ExposureCom=pd.read_csv("expo_data/" + ccode_files[2])
+    ExposureInd=pd.read_csv("expo_data/" + ccode_files[2])
 
-    getshakemapvalue.getshakemapvalue(grid, ExposureRes)
+
+    Sh_ExposureRes=getshakemapvalue.getshakemapvalue(grid, ExposureRes)
+    #Sh_ExposureCom=getshakemapvalue.getshakemapvalue(grid, ExposureCom)
+    #Sh_ExposureInd=getshakemapvalue.getshakemapvalue(grid, ExposureInd)
+
+
+    #start fragility
+    countrystructfrag=0.0
+    struct_Res_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureRes, globalstructfrag, taxonomymapping,countrystructfrag)
+
+
+
