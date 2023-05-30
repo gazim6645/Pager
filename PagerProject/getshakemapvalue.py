@@ -1,4 +1,11 @@
 import numpy as np
+import pandas as pd
+
+
+
+
+from scipy.spatial import cKDTree
+
 def pt_idx(shake_coords, expo_coords):
   """Gets the index of the nearest neighbor in shake_coords for each point in expo_coords.
 
@@ -23,7 +30,11 @@ def pt_idx(shake_coords, expo_coords):
 
   return pt_idx
 
+
+
+
 def getshakemapvalue(shakeoutput, Exposure):
+
     expo_lat=np.array(Exposure["LATITUDE"])
     expo_lon=np.array(Exposure["LONGITUDE"])
     shake_coords = [[], []]
@@ -40,6 +51,8 @@ def getshakemapvalue(shakeoutput, Exposure):
         shake_gm[4].append(shakeoutput.grid[i]['PSA10'])
         shake_gm[5].append(shakeoutput.grid[i]['PSA30'])
         shake_gm[6].append(shakeoutput.grid[i]['SVEL'])
+
+
     
     max_lon=max(shake_coords[0])
     min_lon=min(shake_coords[0])
@@ -52,10 +65,36 @@ def getshakemapvalue(shakeoutput, Exposure):
 
     expo_coords = [expo_lon[idx], expo_lat[idx]]
 
-
     shake_coords=np.array([(a,b) for a,b in zip(*shake_coords)])
     expo_coords=np.array([(a,b) for a,b in zip(*expo_coords)])
 
 
-    idx = pt_idx(np.array(shake_coords), np.array(expo_coords))
+    pt = pt_idx(np.array(shake_coords), np.array(expo_coords))
+
+    shake_gm=np.array(shake_gm)
+    shake_gm = np.transpose(shake_gm)
+
+    gmvalues = pd.DataFrame(shake_gm, columns=['MMI', 'PGA', 'PGV', 'PSA03', 'PSA10', 'PSA30', 'SVEL'])
+
+    
+    gmvalues = gmvalues.loc[pt]
+    Exposure=Exposure.loc[idx]
+
+    gmvalues=gmvalues.reset_index()
+    del gmvalues['index']
+
+    Exposure=Exposure.reset_index()
+    del Exposure['index']
+
+
+    ShakeMap_Exposure = Exposure.join(gmvalues, how='right', sort=True)
+   # ShakeMap_Exposure = ShakeMap_Exposure.reset_index()
+    #del ShakeMap_Exposure['index']
+    #ShekeMap_Exposure =Exposure.join(gmvalues, how='')
+    print(ShakeMap_Exposure.iloc[685120]['SVEL'])
+    print(ShakeMap_Exposure.head)
+    
+
+
+
     
