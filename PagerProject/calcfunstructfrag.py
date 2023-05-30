@@ -14,11 +14,22 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     for current_damage_states in damage_states:
         structfrag_sub=structfrag[structfrag['Damage_state']==current_damage_states] #structfrag_sub = structfrag(structfrag.Damage_state==damage_states(j),:); This is done
 
+        structfrag_sub=structfrag_sub.reset_index()
+        del structfrag_sub['index']
 
-        print(len(structfrag_sub['Building_class']))
-        vuln_idx = np.array(structfrag_sub.loc[~structfrag_sub['Building_class'].isin(taxonomymap['conversion'][tax_idx])].index)
+        
+        
+        varOne=structfrag_sub['Building_class']
+        varTwo=taxonomymap['conversion'][tax_idx]
+
+
+        #vuln_idx = np.array(varTwo.isin(varOne))
+        vuln_idx=np.isin(varTwo, varOne)
+        print(len((vuln_idx)))
         print(vuln_idx)
-        print(len(vuln_idx))
+        break
+
+        
     
     
     
