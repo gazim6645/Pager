@@ -14,6 +14,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     
     
     for current_damage_states in damage_states:
+        current_damage_states="slight"
         
         structfrag_sub=structfrag[structfrag['Damage_state']==current_damage_states] #structfrag_sub = structfrag(structfrag.Damage_state==damage_states(j),:); This is done
 
@@ -80,19 +81,23 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         end
         '''
 
-        sm_expo_new = pd.DataFrame(sm_expo['TAXONOMY'])
+       
 
-        sm_vuln_table = pd.merge(sm_expo_new, vuln_table, how='inner', on=['TAXONOMY'])
+        sm_vuln_table = pd.merge(vuln_table, sm_expo['TAXONOMY'], how='inner', on=['TAXONOMY'])
 
+        print(sm_vuln_table)
+        print(sm_vuln_table.iloc[2000])
+
+        #need to fix sm_vuln_table
         
         #shake_input = [0]*len(sm_vuln_table)
         val = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="PGA"].index)
-        print(val)
+        #print(val)
         #shake_input[val] = np.array(sm_expo['PGA'][val])
         shake_input=dict(zip_longest(val, np.array(sm_expo['PGA'][val]), fillvalue=None))
         
-        print(shake_input)
-
+        #print(shake_input)
+    
         break
 
 
