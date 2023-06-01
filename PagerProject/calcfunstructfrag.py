@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from itertools import zip_longest
 
 
 def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
@@ -8,7 +9,8 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     damage_states =set(structfrag['Damage_state'])
 
     
-    tax_idx = set(np.array(taxonomymap.loc[taxonomymap['taxonomy'].isin(unique_sm_tax)].index))
+    
+    tax_idx = np.array(taxonomymap.loc[taxonomymap['taxonomy'].isin(unique_sm_tax)].index)
     
     
     for current_damage_states in damage_states:
@@ -28,12 +30,10 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         #vuln_idx=structfrag_sub[structfrag_sub['Building_class'].isin(taxonomymap['conversion'][tax_idx])]
         #print(len(taxonomymap['conversion'][tax_idx]))
         #print(len(taxonomymap['conversion'][tax_idx].unique()))
-        vuln_idx = []
-        for i in taxonomymap['conversion'][tax_idx]:
-            curr_idx = structfrag_sub.loc[structfrag_sub['Building_class'] == i].index
-            vuln_idx.append(curr_idx[0])
+        
         
 
+        # from matlab code seems unnecessary
         '''
         a=find(tax_idx==0);
         b=find(vuln_idx==0);
@@ -42,20 +42,61 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         pause;
         end
         '''
+
+        
+        # previous way of combining tables, works but new way doesn't use for loop
+        '''
+        vuln_idx = []
+
+        for i in taxonomymap['conversion'][tax_idx]:
+            curr_idx = structfrag_sub.loc[structfrag_sub['Building_class'] == i].index
+            vuln_idx.append(curr_idx[0])
         df1 = pd.DataFrame(structfrag_sub.iloc[vuln_idx]).reset_index()
         del df1['index']
         df2 = pd.DataFrame(taxonomymap['taxonomy'][tax_idx]).reset_index()
         del df2['index']
         vuln_table = df2.join(df1, how='right', sort=True)
-        print(vuln_table)
+        '''
+        # improved way of combining taxonomy map with structfrag_sub
+        df1 = pd.DataFrame(taxonomymap['conversion'][tax_idx]).reset_index() 
+        del df1['index']
 
-    '''
-    if istable(countrystructfrag)
-        countrystructfrag_sub=countrystructfrag(countrystructfrag.Damage_state(j),:);
-        [~,iglobal,icountry] = intersect(vuln_table.Building_class,countrystructfrag_sub.Building_class);
-        vuln_table(iglobal,:) = [vuln_table(iglobal,"taxonomy") countrystructfrag_sub(icountry,:)];
-    end
-    '''
+        structfrag_sub = structfrag_sub.rename(columns={'Building_class': 'conversion'})
+        vuln_table = pd.merge(df1, structfrag_sub, how='inner', on=['conversion'])
+
+        df2 = pd.DataFrame(taxonomymap['taxonomy'][tax_idx]).reset_index()
+        del df2['index']
+        
+        vuln_table = df2.join(vuln_table, how='right', sort=True)
+        vuln_table = vuln_table.rename(columns={'conversion': 'Building_class', 'taxonomy': 'TAXONOMY'})
+        structfrag_sub = structfrag_sub.rename(columns={'conversion': 'Building_class'})
+
+        # again, seems unnecessary
+        '''
+        if istable(countrystructfrag)
+            countrystructfrag_sub=countrystructfrag(countrystructfrag.Damage_state(j),:);
+            [~,iglobal,icountry] = intersect(vuln_table.Building_class,countrystructfrag_sub.Building_class);
+            vuln_table(iglobal,:) = [vuln_table(iglobal,"taxonomy") countrystructfrag_sub(icountry,:)];
+        end
+        '''
+
+        sm_expo_new = pd.DataFrame(sm_expo['TAXONOMY'])
+
+        sm_vuln_table = pd.merge(sm_expo_new, vuln_table, how='inner', on=['TAXONOMY'])
+
+        
+        #shake_input = [0]*len(sm_vuln_table)
+        val = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="PGA"].index)
+        print(val)
+        #shake_input[val] = np.array(sm_expo['PGA'][val])
+        shake_input=dict(zip_longest(val, np.array(sm_expo['PGA'][val]), fillvalue=None))
+        
+        print(shake_input)
+
+        break
+
+
+        
     
     
     
