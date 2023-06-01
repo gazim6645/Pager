@@ -1,3 +1,5 @@
+from cmath import isnan
+from re import X
 import numpy as np
 import pandas as pd
 from itertools import zip_longest
@@ -46,7 +48,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
 
         
         # previous way of combining tables, works but new way doesn't use for loop
-        '''
+        
         vuln_idx = []
 
         for i in taxonomymap['conversion'][tax_idx]:
@@ -57,6 +59,8 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         df2 = pd.DataFrame(taxonomymap['taxonomy'][tax_idx]).reset_index()
         del df2['index']
         vuln_table = df2.join(df1, how='right', sort=True)
+
+        
         '''
         # improved way of combining taxonomy map with structfrag_sub
         df1 = pd.DataFrame(taxonomymap['conversion'][tax_idx]).reset_index() 
@@ -71,6 +75,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         vuln_table = df2.join(vuln_table, how='right', sort=True)
         vuln_table = vuln_table.rename(columns={'conversion': 'Building_class', 'taxonomy': 'TAXONOMY'})
         structfrag_sub = structfrag_sub.rename(columns={'conversion': 'Building_class'})
+        '''
 
         # again, seems unnecessary
         '''
@@ -80,25 +85,58 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
             vuln_table(iglobal,:) = [vuln_table(iglobal,"taxonomy") countrystructfrag_sub(icountry,:)];
         end
         '''
+    
+        vuln_table = vuln_table.rename(columns={'taxonomy': 'TAXONOMY'})
+        sm_vuln_table = pd.merge(sm_expo['TAXONOMY'], vuln_table, how='inner', on=['TAXONOMY'])
 
-       
-
-        sm_vuln_table = pd.merge(vuln_table, sm_expo['TAXONOMY'], how='inner', on=['TAXONOMY'])
-
-        print(sm_vuln_table)
-        print(sm_vuln_table.iloc[2000])
 
         #need to fix sm_vuln_table
         
-        #shake_input = [0]*len(sm_vuln_table)
-        val = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="PGA"].index)
-        #print(val)
-        #shake_input[val] = np.array(sm_expo['PGA'][val])
-        shake_input=dict(zip_longest(val, np.array(sm_expo['PGA'][val]), fillvalue=None))
+        shake_input = [0]*len(sm_vuln_table)
+        """
+        val_pga = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="PGA"].index)
+        val_sa3 = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="SA(0.3s)"].index)
+        val_sa1 = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="SA(1.0s)"].index)
+      
+        pga=dict(zip_longest(val_pga, np.array(sm_expo['PGA'][val_pga]), fillvalue=None))
         
-        #print(shake_input)
-    
+        sa3=dict(zip_longest(val_sa3, np.array(sm_expo['PSA03'][val_sa3]), fillvalue=None))
+        
+        sa1=dict(zip_longest(val_sa1, np.array(sm_expo['PSA10'][val_sa1]), fillvalue=None))"""
+        val_pga = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="PGA"].index)
+        val_sa3 = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="SA(0.3s)"].index)
+        val_sa1 = np.array(sm_vuln_table.loc[sm_vuln_table["IMT"]=="SA(1.0s)"].index)
+      
+        shake_dict = dict(zip_longest(val_pga, np.array(sm_expo['PGA'][val_pga]), fillvalue=None))
+        
+        shake_dict.update(dict(zip_longest(val_sa3, np.array(sm_expo['PSA03'][val_sa3]), fillvalue=None)))
+        
+        shake_dict.update((zip_longest(val_sa1, np.array(sm_expo['PSA10'][val_sa1]), fillvalue=None)))
+        
+
+        shake_input = np.array(list(shake_dict.values()))
+        shake_input = shake_input/100
+        
+        #sm_expo["COST_STRUCTURAL_USD"][400]=np.nan
+
+        #we have to make test cases where this fails
+        sk=sm_expo.loc[sm_expo["COST_STRUCTURAL_USD"].isna()].index
+        
+        
+
+        if(len(sk)!=0):
+            
+            sm_expo["COST_STRUCTURAL_USD"][sk]=0.7*sm_expo["TOTAL_REPL_COST_USD"][sk]
+
+        tabV=(sm_vuln_table.iloc[:,4:]).to_numpy()
+        print(tabV)
+
+        
+
+
+
         break
+
 
 
         
