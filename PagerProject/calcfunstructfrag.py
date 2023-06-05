@@ -12,22 +12,13 @@ from scipy.interpolate import RegularGridInterpolator
 
 
 
-
-def multiInterp2(x, xp, fp):
-    i = np.arange(len(x)-1)
-    j = np.searchsorted(xp, x) - 1
-    d = (x - xp[j]) / (xp[j + 1] - xp[j])
-    return (1 - d) * fp[i, j] + fp[i, j + 1] * d
-
-
-
 imls = [0.05,0.0562,0.0631,	0.0709,	0.0796,	0.0895,	0.1005,	0.1129,	0.1269,	0.1425,	0.1601,	0.1799	,0.2021,0.2271,0.2551,0.2866,0.322,0.3617,0.4064,0.4565,0.5129,	0.5762,	0.6474,	0.7273,	0.8171,	0.9179,	1.0312,	1.1585	,1.3016	,1.4622	,1.6428	,1.8456,2.0734,	2.3294,	2.6169,	2.94,3.3029,3.7106,	4.1687,	4.6833,	5.2615,	5.911,6.6407,7.4605,8.3815,9.4162,10.5787,11.8846,13.3517,15]
 
 def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     
     unique_sm_tax =set(sm_expo['TAXONOMY'])
     
-    damage_states =set(structfrag['Damage_state'])
+    damage_states =list(set(structfrag['Damage_state']))
 
     result= pd.DataFrame(columns=damage_states)
     
@@ -35,7 +26,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     
     
     for current_damage_states in damage_states:
-        current_damage_states="slight"
+        #current_damage_states="slight"
 
         
         structfrag_sub=structfrag[structfrag['Damage_state']==current_damage_states] #structfrag_sub = structfrag(structfrag.Damage_state==damage_states(j),:); This is done
@@ -150,15 +141,10 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         tabV=(sm_vuln_table.iloc[:,4:]).to_numpy()
         SI=shake_input
 
-        cost_ratio=np.array([np.interp(SI[i], imls, tabV[i]) for i in range(SI.size)])
+        cost_ratio=np.array([np.interp(SI[i], imls, tabV[i]) for i in range( tabV.shape[0])]) #np.array([np.interp(SI[i], imls, tabV[i]) for i in range(SI.size)])
+        
         #cost_ratio[cost_ratio==cost_ratio[5849]] = 0
 
-        print(cost_ratio)
-
-        if (np.any(cost_ratio < 0)):
-            print("yes")
-        else:
-            print("no")
         
         result[current_damage_states]=cost_ratio*sm_expo["COST_STRUCTURAL_USD"]
         
