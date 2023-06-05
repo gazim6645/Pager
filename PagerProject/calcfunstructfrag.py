@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 from itertools import zip_longest
 from decimal import Decimal
-from scipy.interpolate import Rbf
+from scipy.interpolate import interp2d
+from scipy.interpolate import interp1d
+from scipy.interpolate import RegularGridInterpolator
+
+
+
 
 def multiInterp2(x, xp, fp):
     i = np.arange(len(x)-1)
@@ -30,6 +35,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     
     
     for current_damage_states in damage_states:
+        current_damage_states="slight"
 
         
         structfrag_sub=structfrag[structfrag['Damage_state']==current_damage_states] #structfrag_sub = structfrag(structfrag.Damage_state==damage_states(j),:); This is done
@@ -144,7 +150,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         tabV=(sm_vuln_table.iloc[:,4:]).to_numpy()
         SI=shake_input
 
-        cost_ratio=multiInterp2(imls,SI,tabV)#np.array([np.interp(SI[i], imls, tabV[i]) for i in range(SI.size)])
+        cost_ratio=np.array([np.interp(SI[i], imls, tabV[i]) for i in range(SI.size)])
         #cost_ratio[cost_ratio==cost_ratio[5849]] = 0
 
         print(cost_ratio)
