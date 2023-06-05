@@ -125,12 +125,24 @@ for country in ccode:
 
 
     Sh_ExposureRes=getshakemapvalue.getshakemapvalue(grid, ExposureRes)
-    #Sh_ExposureCom=getshakemapvalue.getshakemapvalue(grid, ExposureCom)
-    #Sh_ExposureInd=getshakemapvalue.getshakemapvalue(grid, ExposureInd)
+    Sh_ExposureCom=getshakemapvalue.getshakemapvalue(grid, ExposureCom)
+    Sh_ExposureInd=getshakemapvalue.getshakemapvalue(grid, ExposureInd)
 
 
     #start fragility
     countrystructfrag=0.0
     struct_Res_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureRes, globalstructfrag, taxonomymapping,countrystructfrag)
+    struct_Com_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureCom, globalstructfrag, taxonomymapping,countrystructfrag)
+    struct_Ind_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureInd, globalstructfrag, taxonomymapping,countrystructfrag)
+
+    slight_damage    = struct_Res_damage['slight'].sum() + struct_Com_damage['slight'].sum() + struct_Ind_damage['slight'].sum()
+    moderate_damage  = struct_Res_damage['moderate'].sum() + struct_Com_damage['moderate'].sum() + struct_Ind_damage['moderate'].sum()
+    extensive_damage = struct_Res_damage['extensive'].sum() + struct_Com_damage['extensive'].sum() + struct_Ind_damage['extensive'].sum()
+    complete_damage  = struct_Res_damage['complete'].sum() + struct_Com_damage['complete'].sum() + struct_Ind_damage['complete'].sum()
+    
+    print('slight: ', slight_damage)
+    print('moderate: ', moderate_damage)
+    print('extensive: ', extensive_damage)
+    print('complete: ', complete_damage)
 
 
