@@ -9,7 +9,12 @@ import Opening_files
 import getshakemapvalue
 import os
 import calcfunstructfrag
+import calcfunstrucexp
+import calcfunnonstrutcexp
+import calcfuncontentsexp
 
+import time
+start_time = time.time()
 '''
 Task 1: Getting the xml file to grid
 '''
@@ -53,9 +58,6 @@ for x in lat_vals:
 #Country codes
 ccode = list(img_arr[row,col])
 ccode.sort()
-#print("country codes: ", ccode)
-#print("cols: ", col)
-#print("rows: ", row)
 
 # replace duplicate US codes
 '''
@@ -64,13 +66,11 @@ ccode = np.where(ccode == 903, 902, ccode)
 ccode = np.where(ccode == 904, 902, ccode)
 print("replacing", ccode)
 '''
-ccode = list(set(ccode))
-#print("unique", ccode)
+ccode = np.array(set(ccode))
 
 '''
 Task 4: Reading in files
 '''
-
 globalstructvuln = pd.read_csv("expo_data/struct_vulnerability.csv")
 globalnonstructvuln=pd.read_csv("expo_data/nonstruct_vulnerability.csv")
 globalcontentsvuln=pd.read_csv("expo_data/contents_vulnerability.csv")
@@ -140,9 +140,50 @@ for country in ccode:
     extensive_damage = struct_Res_damage['extensive'].sum() + struct_Com_damage['extensive'].sum() + struct_Ind_damage['extensive'].sum()
     complete_damage  = struct_Res_damage['complete'].sum() + struct_Com_damage['complete'].sum() + struct_Ind_damage['complete'].sum()
     
-    print('slight: ', slight_damage)
-    print('moderate: ', moderate_damage)
-    print('extensive: ', extensive_damage)
-    print('complete: ', complete_damage)
+  
+    struct_Res= calcfunstrucexp.calcfunstrucexp(Sh_ExposureRes,globalstructvuln,taxonomymapping,countrystructvuln)
+    struct_Com = calcfunstrucexp.calcfunstrucexp(Sh_ExposureCom,globalstructvuln,taxonomymapping,countrystructvuln)
+    struct_Ind = calcfunstrucexp.calcfunstrucexp(Sh_ExposureInd,globalstructvuln,taxonomymapping,countrystructvuln)
 
+
+    nonstruct_Res = calcfunnonstrutcexp.calcfunnonstrutcexp(Sh_ExposureRes,globalnonstructvuln,taxonomymapping,countrynonstructvuln)
+    nonstruct_Com = calcfunnonstrutcexp.calcfunnonstrutcexp(Sh_ExposureCom,globalnonstructvuln,taxonomymapping,countrynonstructvuln)
+    nonstruct_Ind = calcfunnonstrutcexp.calcfunnonstrutcexp(Sh_ExposureInd,globalnonstructvuln,taxonomymapping,countrynonstructvuln)
+
+
+
+    contents_Res = calcfuncontentsexp.calcfuncontentsexp(Sh_ExposureRes,globalcontentsvuln,taxonomymapping,countrycontentsvuln)
+    contents_Com = calcfuncontentsexp.calcfuncontentsexp(Sh_ExposureCom,globalcontentsvuln,taxonomymapping,countrycontentsvuln)
+    contents_Ind = calcfuncontentsexp.calcfuncontentsexp(Sh_ExposureInd,globalcontentsvuln,taxonomymapping,countrycontentsvuln)
+
+
+    Total_Structural_Loss=round((sum(struct_Res)+sum(struct_Com)+sum(struct_Ind))/1e6,2)
+    Total_NonStructural_Loss=round((sum(nonstruct_Res)+sum(nonstruct_Com)+sum(nonstruct_Ind))/1e6,2)
+    Total_Content_Loss=round((sum(contents_Res)+sum(contents_Com)+sum(contents_Ind))/1e6,2)
+
+    loss=Total_Structural_Loss+Total_NonStructural_Loss+Total_Content_Loss
+
+    print('Total eco. loss is', loss, 'Million USD for', country_name,'with struct_loss',Total_Structural_Loss, 'nonstruct_loss', Total_NonStructural_Loss, 'and content_loss', Total_Content_Loss)
+
+    Sh_ExposureRes= Sh_ExposureRes.join(struct_Res_damage, how='right', sort=True)
+    Sh_ExposureCom= Sh_ExposureCom.join(struct_Com_damage, how='right', sort=True)
+    Sh_ExposureInd= Sh_ExposureInd.join(struct_Ind_damage, how='right', sort=True)
+
+    nonstruct_Res=pd.DataFrame(np.array(nonstruct_Res),columns=["nonstruct_Res"])
+    nonstruct_Com=pd.DataFrame(np.array(nonstruct_Com),columns=["nonstruct_Com"])
+    nonstruct_Ind=pd.DataFrame(np.array(nonstruct_Ind),columns=["nonstruct_Ind"])
+
+    Sh_ExposureRes=Sh_ExposureRes.join(nonstruct_Res, how='right', sort=True)
+    Sh_ExposureCom=Sh_ExposureCom.join(nonstruct_Com, how='right', sort=True)
+    Sh_ExposureInd=Sh_ExposureInd.join(nonstruct_Ind, how='right', sort=True)
+
+    contents_Res=pd.DataFrame(np.array(contents_Res),columns=["contents_Res"])
+    contents_Com=pd.DataFrame(np.array(contents_Com),columns=["contents_Com"])
+    contents_Ind=pd.DataFrame(np.array(contents_Ind),columns=["contents_Ind"])
+
+    Sh_ExposureRes=Sh_ExposureRes.join(contents_Res, how='right', sort=True)
+    Sh_ExposureCom=Sh_ExposureCom.join(contents_Com, how='right', sort=True)
+    Sh_ExposureInd=Sh_ExposureInd.join(contents_Ind, how='right', sort=True)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
