@@ -47,9 +47,6 @@ def calcfuncontentsexp(sm_expo, contentsvuln, taxonomymap,countrycontentsvuln):
 
     shake_input = shake_input/100
 
-
-    #sm_expo["COST_STRUCTURAL_USD"][400]=np.nan
-        #we have to make test cases where this fails
     sk=sm_expo.loc[sm_expo["COST_CONTENTS_USD"].isna()].index
         
     if(len(sk)!=0):
@@ -59,16 +56,6 @@ def calcfuncontentsexp(sm_expo, contentsvuln, taxonomymap,countrycontentsvuln):
     tabV=(sm_vuln_table.iloc[:,3:]).to_numpy()
     SI=shake_input
 
-    #cost_ratio=np.array([np.interp(SI[i], imls, tabV[i], left=0) for i in range(SI.size)]) 
-    '''
-    cost_ratio = []
-    for i in range(SI.size):
-        f=interp1d(imls, tabV[i],  fill_value='extrapolate') 
-        curr = f(SI[i]).max()
-        if (curr < 0):
-            curr = 0
-        cost_ratio.append(curr)
-    '''
     cost_ratio=[]
     for i in range(SI.size):
         if(SI[i] <imls[0]):
