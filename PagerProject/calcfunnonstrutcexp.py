@@ -60,16 +60,6 @@ def calcfunnonstrutcexp(sm_expo, nonstructvuln, taxonomymap,countrynonstructvuln
     tabV=(sm_vuln_table.iloc[:,3:]).to_numpy()
     SI=shake_input
 
-    #cost_ratio=np.array([np.interp(SI[i], imls, tabV[i], left=0) for i in range(SI.size)]) 
-    '''
-    cost_ratio = []
-    for i in range(SI.size):
-        f=interp1d(imls, tabV[i],  fill_value='extrapolate') 
-        curr = f(SI[i]).max()
-        if (curr < 0):
-            curr = 0
-        cost_ratio.append(curr)
-    '''
     cost_ratio=[]
     for i in range(SI.size):
         if(SI[i] <imls[0]):
