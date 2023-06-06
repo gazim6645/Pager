@@ -104,6 +104,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         SI=shake_input
 
         #cost_ratio = interp1d(imls, tabV[i],  fill_value='extrapolate') 
+        '''
         cost_ratio = []
         for i in range(SI.size):
             f=interp1d(imls, tabV[i],  fill_value='extrapolate') 
@@ -111,6 +112,17 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
             if (curr < 0):
                 curr = 0
             cost_ratio.append(curr)
+        '''
+        cost_ratio=[]
+        for i in range(SI.size):
+            if(SI[i] <imls[0]):
+                cost_ratio.append((interp1d(imls, tabV[i],  fill_value='extrapolate'))(SI[i]))
+            else:
+                cost_ratio.append(np.interp(SI[i], imls, tabV[i]))
+
+        
+        cost_ratio = np.array(cost_ratio)
+        cost_ratio[cost_ratio < 0] = 0
         '''
         file1=open("myfile.txt","w")
         for i in range(0,len(cost_ratio)):
