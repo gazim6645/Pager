@@ -13,6 +13,7 @@ import calcfunstrucexp
 import calcfunnonstrutcexp
 import calcfuncontentsexp
 
+
 import time
 start_time = time.time()
 '''
@@ -56,21 +57,18 @@ for x in lat_vals:
     row.append(curr_idx)
 
 #Country codes
-ccode = list(img_arr[row,col])
-ccode.sort()
+ccode = np.array(list(img_arr[row,col]))
 
-# replace duplicate US codes
-'''
-ccode.replace(904,903)
-ccode = np.where(ccode == 903, 902, ccode)
-ccode = np.where(ccode == 904, 902, ccode)
-print("replacing", ccode)
-'''
+
+# replace duplicate US codes, and get all unique codes
+ccode[ccode == 903] = 902
+ccode[ccode == 904] = 902
 ccode = np.array(set(ccode))
 
 '''
 Task 4: Reading in files
 '''
+
 globalstructvuln = pd.read_csv("expo_data/struct_vulnerability.csv")
 globalnonstructvuln=pd.read_csv("expo_data/nonstruct_vulnerability.csv")
 globalcontentsvuln=pd.read_csv("expo_data/contents_vulnerability.csv")
@@ -139,8 +137,12 @@ for country in ccode:
     moderate_damage  = struct_Res_damage['moderate'].sum() + struct_Com_damage['moderate'].sum() + struct_Ind_damage['moderate'].sum()
     extensive_damage = struct_Res_damage['extensive'].sum() + struct_Com_damage['extensive'].sum() + struct_Ind_damage['extensive'].sum()
     complete_damage  = struct_Res_damage['complete'].sum() + struct_Com_damage['complete'].sum() + struct_Ind_damage['complete'].sum()
-    
-  
+    '''
+    print('slight', slight_damage)
+    print('moderate', moderate_damage)
+    print('extensive', extensive_damage)
+    print('complete', complete_damage)
+    '''
     struct_Res= calcfunstrucexp.calcfunstrucexp(Sh_ExposureRes,globalstructvuln,taxonomymapping,countrystructvuln)
     struct_Com = calcfunstrucexp.calcfunstrucexp(Sh_ExposureCom,globalstructvuln,taxonomymapping,countrystructvuln)
     struct_Ind = calcfunstrucexp.calcfunstrucexp(Sh_ExposureInd,globalstructvuln,taxonomymapping,countrystructvuln)
@@ -186,4 +188,3 @@ for country in ccode:
     Sh_ExposureInd=Sh_ExposureInd.join(contents_Ind, how='right', sort=True)
 
     print("--- %s seconds ---" % (time.time() - start_time))
-
