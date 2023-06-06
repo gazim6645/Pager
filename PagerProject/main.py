@@ -12,71 +12,80 @@ import calcfunstructfrag
 import calcfunstrucexp
 import calcfunnonstrutcexp
 import calcfuncontentsexp
-
-
 import time
 start_time = time.time()
+
 '''
-Task 1: Getting the xml file to grid
+Section 1: Getting the xml file to grid
 '''
 grid = XmlToGrid.ShakeMapGrid()
 grid.load("us20005j32.xml")
-#print(grid.grid[0]["LON"])
 
 '''
-Task 2: Getting tif file read to get country codes
+Section 2: Getting tif file read to get country codes
 '''
-
 # Open the TIFF file
-PIL.Image.MAX_IMAGE_PIXELS = 900115200
+PIL.Image.MAX_IMAGE_PIXELS = 900115200 #Maximum number of pixel's that can be supported be python hence resizing the imagine while keeping the contents intact
 img = Image.open('countriesISOraster.tif')
-img_arr = np.array(img)
+img_arr = np.array(img) #img_arr stores the map of the world by representing different countries with unique country code(expcept US) and represents ocean with 0
 
 '''
-Task 3: Getting the country code
+Secntion 3: Getting the country code
 '''
 
-#print(grid.lon) # how to get epicenter
-#print(grid.lat) # how to get epicenter
-#print(grid.lat_max) # corners
-#print(grid.lat_min)
+'''
+                        Syntax
+epicenters:
+        grid.lon
+        grid.lat
+Corner:
+        grid.lat_max
+        grid.lat_min
+        grid.lon_max
+        grid.lon_min
+'''
 
-range_of_lon=np.arange(-180.0000,179.999986,0.0083334)
-range_of_lat=np.arange(83.6333,-90.0000,-0.0083334)
-lon_vals=[grid.lon_min,grid.lon_max,grid.lon_min,grid.lon_max, grid.lon]
-lat_vals=[grid.lat_max,grid.lat_max,grid.lat_min,grid.lat_min, grid.lat]
+range_of_lon=np.arange(-180.0000,179.999986,0.0083334) #Possible lontitude range for Earth                                   
+range_of_lat=np.arange(83.6333,-90.0000,-0.0083334)#Possible latitude range for Earth
+lon_vals=[grid.lon_min,grid.lon_max,grid.lon_min,grid.lon_max, grid.lon] #constructing a longitude Value array for knn search
+lat_vals=[grid.lat_max,grid.lat_max,grid.lat_min,grid.lat_min, grid.lat]  #constructing a latitude Value array for knn search
 col = []
 row = []
 
+#Knn search for latitude
 for x in lon_vals:
     curr_idx = ((np.abs(range_of_lon - x)).argmin())
     col.append(curr_idx)
 
+#Knn search for longitude
 for x in lat_vals:
     curr_idx = ((np.abs(range_of_lat - x)).argmin())
     row.append(curr_idx)
 
-#Country codes
-ccode = np.array(list(img_arr[row,col]))
+
+ccode = np.array(list(img_arr[row,col])) #finding the country codes from the 
 
 
-# replace duplicate US codes, and get all unique codes
+# US has duplicate ccode for East and West coast. This replaces duplicate US codes with one unique codes
 ccode[ccode == 903] = 902
 ccode[ccode == 904] = 902
-ccode = np.array(set(ccode))
+ccode = np.array(set(ccode)) #removes any duplicates that might be there
 
 '''
-Task 4: Reading in files
+Secrion 4: Reading in files
 '''
-
 globalstructvuln = pd.read_csv("expo_data/struct_vulnerability.csv")
 globalnonstructvuln=pd.read_csv("expo_data/nonstruct_vulnerability.csv")
 globalcontentsvuln=pd.read_csv("expo_data/contents_vulnerability.csv")
 globalstructfrag=pd.read_csv("expo_data/struct_fragility.csv")
 
+'''
+Section 5: Calculation
+'''
+
 ccode = [218] # country code for Ecuador, the only country of ccode we have the files for
 for country in ccode:
-    if(country == 0):
+    if(country == 0): #ignores the ocean
         continue
     ccode_files, country_name = Opening_files.read_files(country) # get list of filenames and country name
     
@@ -90,6 +99,7 @@ for country in ccode:
     else:
         countrystructvuln = 0
         print('there is no country or region specific structural vulnerability file for this country')
+
     # nonstructural vulnerability
     if ccode_files[5] in expo_files_name:
         contrynonstructvuln= pd.read_csv("expo_data/" + ccode_files[5])
@@ -98,6 +108,7 @@ for country in ccode:
     else:
         countrynonstructvuln = 0
         print('there is no country or region specific nonstructural vulnerability file for this country')
+
     # contents vulnerability
     if ccode_files[7] in expo_files_name:
         contrycontentsvuln= pd.read_csv("expo_data/" + ccode_files[7])
@@ -106,6 +117,7 @@ for country in ccode:
     else:
         countrycontentsvuln = 0
         print('there is no country or region specific contents vulnerability file for this country')
+
     # taxonomy mapping
     if str(ccode_files[9]) in expo_files_name:
         taxonomymapping= pd.read_csv("expo_data/" + ccode_files[9])
