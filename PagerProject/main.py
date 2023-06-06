@@ -129,20 +129,16 @@ for country in ccode:
 
     #start fragility
     countrystructfrag=0.0
-    struct_Res_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureRes, globalstructfrag, taxonomymapping,countrystructfrag)
+    slight_damage, moderate_damage, extensive_damage, complete_damage = 0.0, 0.0, 0.0, 0.0
+    struct_Res_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureRes, globalstructfrag, taxonomymapping,countrystructfrag)    
     struct_Com_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureCom, globalstructfrag, taxonomymapping,countrystructfrag)
     struct_Ind_damage,damage_states=calcfunstructfrag.calcfunstructfrag(Sh_ExposureInd, globalstructfrag, taxonomymapping,countrystructfrag)
 
-    slight_damage    = struct_Res_damage['slight'].sum() + struct_Com_damage['slight'].sum() + struct_Ind_damage['slight'].sum()
-    moderate_damage  = struct_Res_damage['moderate'].sum() + struct_Com_damage['moderate'].sum() + struct_Ind_damage['moderate'].sum()
-    extensive_damage = struct_Res_damage['extensive'].sum() + struct_Com_damage['extensive'].sum() + struct_Ind_damage['extensive'].sum()
-    complete_damage  = struct_Res_damage['complete'].sum() + struct_Com_damage['complete'].sum() + struct_Ind_damage['complete'].sum()
-    '''
-    print('slight', slight_damage)
-    print('moderate', moderate_damage)
-    print('extensive', extensive_damage)
-    print('complete', complete_damage)
-    '''
+    slight_damage    = (struct_Res_damage['slight'].sum()) + (struct_Com_damage['slight'].sum()) + (struct_Ind_damage['slight'].sum())
+    moderate_damage  = (struct_Res_damage['moderate'].sum()) + (struct_Com_damage['moderate'].sum()) + (struct_Ind_damage['moderate'].sum())
+    extensive_damage = (struct_Res_damage['extensive'].sum()) + (struct_Com_damage['extensive'].sum()) + (struct_Ind_damage['extensive'].sum())
+    complete_damage  = (struct_Res_damage['complete'].sum()) + (struct_Com_damage['complete'].sum()) + (struct_Ind_damage['complete'].sum())
+
     struct_Res= calcfunstrucexp.calcfunstrucexp(Sh_ExposureRes,globalstructvuln,taxonomymapping,countrystructvuln)
     struct_Com = calcfunstrucexp.calcfunstrucexp(Sh_ExposureCom,globalstructvuln,taxonomymapping,countrystructvuln)
     struct_Ind = calcfunstrucexp.calcfunstrucexp(Sh_ExposureInd,globalstructvuln,taxonomymapping,countrystructvuln)
@@ -151,8 +147,6 @@ for country in ccode:
     nonstruct_Res = calcfunnonstrutcexp.calcfunnonstrutcexp(Sh_ExposureRes,globalnonstructvuln,taxonomymapping,countrynonstructvuln)
     nonstruct_Com = calcfunnonstrutcexp.calcfunnonstrutcexp(Sh_ExposureCom,globalnonstructvuln,taxonomymapping,countrynonstructvuln)
     nonstruct_Ind = calcfunnonstrutcexp.calcfunnonstrutcexp(Sh_ExposureInd,globalnonstructvuln,taxonomymapping,countrynonstructvuln)
-
-
 
     contents_Res = calcfuncontentsexp.calcfuncontentsexp(Sh_ExposureRes,globalcontentsvuln,taxonomymapping,countrycontentsvuln)
     contents_Com = calcfuncontentsexp.calcfuncontentsexp(Sh_ExposureCom,globalcontentsvuln,taxonomymapping,countrycontentsvuln)
