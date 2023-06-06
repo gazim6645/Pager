@@ -61,6 +61,7 @@ def calcfunnonstrutcexp(sm_expo, nonstructvuln, taxonomymap,countrynonstructvuln
     SI=shake_input
 
     #cost_ratio=np.array([np.interp(SI[i], imls, tabV[i], left=0) for i in range(SI.size)]) 
+    '''
     cost_ratio = []
     for i in range(SI.size):
         f=interp1d(imls, tabV[i],  fill_value='extrapolate') 
@@ -68,7 +69,17 @@ def calcfunnonstrutcexp(sm_expo, nonstructvuln, taxonomymap,countrynonstructvuln
         if (curr < 0):
             curr = 0
         cost_ratio.append(curr)
+    '''
+    cost_ratio=[]
+    for i in range(SI.size):
+        if(SI[i] <imls[0]):
+            cost_ratio.append((interp1d(imls, tabV[i],  fill_value='extrapolate'))(SI[i]))
+        else:
+            cost_ratio.append(np.interp(SI[i], imls, tabV[i]))
 
+    
+    cost_ratio = np.array(cost_ratio)
+    cost_ratio[cost_ratio < 0] = 0
     result=cost_ratio*sm_expo["COST_NONSTRUCTURAL_USD"]
     return result
 
