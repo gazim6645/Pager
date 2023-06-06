@@ -16,8 +16,6 @@ imls = [0.05,0.0562,0.0631,	0.0709,	0.0796,	0.0895,	0.1005,	0.1129,	0.1269,	0.14
 
 def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
 
-    
-    
     unique_sm_tax =set(sm_expo['TAXONOMY'])
     
     damage_states =list(set(structfrag['Damage_state']))
@@ -30,7 +28,7 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
     for current_damage_states in damage_states:
 
 
-        structfrag_sub=structfrag[structfrag['Damage_state']==current_damage_states] #structfrag_sub = structfrag(structfrag.Damage_state==damage_states(j),:); This is done
+        structfrag_sub=structfrag[structfrag['Damage_state']==current_damage_states] 
 
         structfrag_sub=structfrag_sub.reset_index()
         del structfrag_sub['index']
@@ -93,8 +91,6 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         shake_input = shake_input/100
        
         
-        #sm_expo["COST_STRUCTURAL_USD"][400]=np.nan
-        #we have to make test cases where this fails
         sk=sm_expo.loc[sm_expo["COST_STRUCTURAL_USD"].isna()].index
         
         if(len(sk)!=0):
@@ -103,16 +99,6 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         tabV=(sm_vuln_table.iloc[:,4:]).to_numpy()
         SI=shake_input
 
-        #cost_ratio = interp1d(imls, tabV[i],  fill_value='extrapolate') 
-        '''
-        cost_ratio = []
-        for i in range(SI.size):
-            f=interp1d(imls, tabV[i],  fill_value='extrapolate') 
-            curr = f(SI[i]).max()
-            if (curr < 0):
-                curr = 0
-            cost_ratio.append(curr)
-        '''
         cost_ratio=[]
         for i in range(SI.size):
             if(SI[i] <imls[0]):
@@ -123,12 +109,6 @@ def calcfunstructfrag(sm_expo, structfrag, taxonomymap,countrystructfrag):
         
         cost_ratio = np.array(cost_ratio)
         cost_ratio[cost_ratio < 0] = 0
-        '''
-        file1=open("myfile.txt","w")
-        for i in range(0,len(cost_ratio)):
-            file1.writelines(str(cost_ratio[i])+"\n")
-        file1.close()
-        '''
         result[current_damage_states]=cost_ratio*sm_expo["COST_STRUCTURAL_USD"]
 
 
